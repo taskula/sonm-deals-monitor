@@ -1,0 +1,13 @@
+Tiny project to monitor the number of deals in SONM network
+
+To install:
+
+sudo cpan DBI
+sudo cpan DBD::SQLite
+sudo cpan JSON
+
+Monitoring script - records
+./monitor.pl -i 60 -v
+
+Telegram Bot
+./telegram-bot.pl -t <bot token> -v
