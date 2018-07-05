@@ -39,13 +39,13 @@ while (1) {
     if ($updates) {
         unless ($latest) {
             $latest = $updates->{result}->[@{$updates->{result}}-1]
-                ->{message}->{message_id};
+                ->{message}->{date};
         }
         foreach my $upd (@{$updates->{result}}) {
-            if ($upd->{message}->{message_id} <= $latest) {
+            if ($upd->{message}->{date} <= $latest) {
                 next;
             }
-            $latest = $upd->{message}->{message_id};
+            $latest = $upd->{message}->{date};
             my $cmd = $upd->{message}->{text};
             next unless $cmd && $cmd =~ /^\/dm\@{0,1}(.*)$/;
             respond_stats($upd);
