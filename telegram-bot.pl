@@ -117,7 +117,7 @@ telegram-bot.pl - Reports the number of deals and the change to Telegram Chat
 
 =head1 SYNOPSIS
 
-./monitor.pl [options]
+./telegram-bot.pl [options]
 
  Options:
     --help or -h        Prints help message
