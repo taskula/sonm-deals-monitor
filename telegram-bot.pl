@@ -47,7 +47,7 @@ while (1) {
             }
             $latest = $upd->{message}->{message_id};
             my $cmd = $upd->{message}->{text};
-            next unless $cmd eq '/dm';
+            next unless $cmd =~ /^\/dm\@{0,1}(.*)$/;
             respond_stats($upd);
         }
     }
