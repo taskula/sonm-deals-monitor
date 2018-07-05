@@ -58,27 +58,27 @@ while (1) {
 sub respond_stats {
     my ($upd) = @_;
 
-    my $sth = $dbh->prepare('SELECT amount FROM deals ORDER BY id DESC LIMIT 1');
+    my $sth = $dbh->prepare('SELECT amount FROM deals ORDER BY timestamp DESC LIMIT 1');
     $sth->execute();
     my ($latest) = $sth->fetchrow_array();
     $sth = $dbh->prepare('SELECT amount FROM deals WHERE ' .
-        'timestamp < DATETIME("now", "-1 hour") ORDER BY id DESC LIMIT 1');
+        'timestamp < DATETIME("now", "-1 hour") ORDER BY timestamp DESC LIMIT 1');
     $sth->execute();
     my ($interval_1hour) = $sth->fetchrow_array();
     $sth = $dbh->prepare('SELECT amount FROM deals WHERE ' .
-        'timestamp < DATETIME("now", "-1 day") ORDER BY id DESC LIMIT 1');
+        'timestamp < DATETIME("now", "-1 day") ORDER BY timestamp DESC LIMIT 1');
     $sth->execute();
     my ($interval_1day) = $sth->fetchrow_array();
     $sth = $dbh->prepare('SELECT amount FROM deals WHERE ' .
-        'timestamp < DATETIME("now", "-1 week") ORDER BY id DESC LIMIT 1');
+        'timestamp < DATETIME("now", "-1 week") ORDER BY timestamp DESC LIMIT 1');
     $sth->execute();
     my ($interval_1week) = $sth->fetchrow_array();
     $sth = $dbh->prepare('SELECT amount FROM deals WHERE ' .
-        'timestamp < DATETIME("now", "-1 month") ORDER BY id DESC LIMIT 1');
+        'timestamp < DATETIME("now", "-1 month") ORDER BY timestamp DESC LIMIT 1');
     $sth->execute();
     my ($interval_1month) = $sth->fetchrow_array();
     $sth = $dbh->prepare('SELECT amount FROM deals ORDER BY '.
-        'id ASC LIMIT 1');
+        'timestamp ASC LIMIT 1');
     $sth->execute();
     my ($interval_all) = $sth->fetchrow_array();
 
