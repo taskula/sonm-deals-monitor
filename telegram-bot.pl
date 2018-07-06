@@ -103,7 +103,7 @@ sub inc_dec {
 
     if ($latest > $old) {
         my $increase = $latest - $old;
-        return '-' . sprintf("%.2f", ($increase / $old * 100)) . '%';
+        return '+' . sprintf("%.2f", ($increase / $old * 100)) . '%';
     } else {
         my $decrease = $old - $latest;
         return '-' . sprintf("%.2f", ($decrease / $old * 100)) . '%';
