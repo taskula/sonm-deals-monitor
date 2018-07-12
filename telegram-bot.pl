@@ -77,10 +77,9 @@ sub respond_stats {
         'timestamp < DATETIME("now", "-1 month") ORDER BY timestamp DESC LIMIT 1');
     $sth->execute();
     my ($interval_1month) = $sth->fetchrow_array();
-    $sth = $dbh->prepare('SELECT amount FROM deals ORDER BY '.
-        'timestamp ASC LIMIT 1');
+    $sth = $dbh->prepare('SELECT MAX(amount) FROM deals');
     $sth->execute();
-    my ($interval_all) = $sth->fetchrow_array();
+    my ($ath) = $sth->fetchrow_array();
 
     my $chat_id = $upd->{message}->{chat}->{id};
     my $msg_id  = $upd->{message}->{message_id};
@@ -89,7 +88,7 @@ sub respond_stats {
        $msg .= '1 day: ' . inc_dec($latest, $interval_1day) . "\n";
        $msg .= '1 week: ' . inc_dec($latest, $interval_1week) . "\n";
        $msg .= '1 month: ' . inc_dec($latest, $interval_1month) . "\n";
-       $msg .= 'All time: ' . inc_dec($latest, $interval_all);
+       $msg .= "From ATH ($ath): " . inc_dec($latest, $ath);
     my $tg_url = "https://api.telegram.org/bot$token/sendMessage";
     `curl -s -G $tg_url --data-urlencode "text=$msg" --data-urlencode "chat_id=$chat_id" --data-urlencode "reply_to_message_id=$msg_id"`;
     print "Sending message to chat id $chat_id\n" if $verbose;
