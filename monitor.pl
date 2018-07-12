@@ -45,7 +45,7 @@ while (1) {
     }
 
     my $sth = $dbh->prepare('INSERT INTO deals (amount) VALUES (?)');
-    $sth->execute($deals);
+    eval{ $sth->execute($deals); };
     print "Added deals to database\n" if $verbose;
 
     sleep($interval);
