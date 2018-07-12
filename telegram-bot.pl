@@ -81,6 +81,11 @@ sub respond_stats {
     $sth->execute();
     my ($ath) = $sth->fetchrow_array();
 
+    # Get SNM price from Binance
+    my $snm_ticker = `curl -s https://api.binance.com/api/v1/ticker/24hr?symbol=SNMBTC`;
+       $snm_ticker = JSON->new->utf8->decode($snm_ticker);
+    my $snm_last_price = $snm_ticker->{lastPrice}*100000000;
+    my $snm_quote_volume = int($snm_ticker->{quoteVolume});
     my $chat_id = $upd->{message}->{chat}->{id};
     my $msg_id  = $upd->{message}->{message_id};
     my $msg  = "Current deals: $latest\n";
@@ -88,7 +93,10 @@ sub respond_stats {
        $msg .= '1 day: ' . inc_dec($latest, $interval_1day) . "\n";
        $msg .= '1 week: ' . inc_dec($latest, $interval_1week) . "\n";
        $msg .= '1 month: ' . inc_dec($latest, $interval_1month) . "\n";
-       $msg .= "From ATH ($ath): " . inc_dec($latest, $ath);
+       $msg .= "From ATH ($ath): " . inc_dec($latest, $ath) . "\n";
+       $msg .= "\n";
+       $msg .= "SNM Price: $snm_last_price sats\n";
+       $msg .= "Vol: $snm_quote_volume BTC";
     my $tg_url = "https://api.telegram.org/bot$token/sendMessage";
     `curl -s -G $tg_url --data-urlencode "text=$msg" --data-urlencode "chat_id=$chat_id" --data-urlencode "reply_to_message_id=$msg_id"`;
     print "Sending message to chat id $chat_id\n" if $verbose;
