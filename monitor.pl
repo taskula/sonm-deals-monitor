@@ -25,6 +25,12 @@ GetOptions(
 pod2usage(1) if $help;
 pod2usage(-exitval => 0, -verbose => 2) if $man;
 
+unless (-e $deals_db) {
+    my $lfh;
+    open($lfh, '>', $deals_db) or die("Cannot create file $deals_db");
+    close($lfh);
+}
+
 my $dbh = DBI->connect('DBI:SQLite:dbname=data/deals.db', 'sonm', 'sonm',
     { RaiseError => 1 }
 ) or die $DBI::errstr;
