@@ -36,7 +36,7 @@ while (1) {
     my $data = `curl -s $tg_url`;
     my $updates = JSON->new->utf8->decode($data);
 
-    if ($updates) {
+    if ($updates->{result}) {
         unless ($latest) {
             $latest = $updates->{result}->[@{$updates->{result}}-1]
                 ->{update_id};
