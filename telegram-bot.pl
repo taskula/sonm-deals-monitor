@@ -34,7 +34,8 @@ while (1) {
     # Get updates
     my $tg_url = "https://api.telegram.org/bot$token/getUpdates?offset=$latest";
     my $data = `curl -s $tg_url`;
-    my $updates = JSON->new->utf8->decode($data);
+    my $updates = eval { JSON->new->utf8->decode($data); };
+    next if $@;
 
     if ($updates->{result}) {
         unless ($latest) {
@@ -48,7 +49,7 @@ while (1) {
             $latest = $upd->{update_id};
             my $cmd = $upd->{message}->{text};
             next unless $cmd && $cmd =~ /^\/dm\@{0,1}(.*)$/;
-            respond_stats($upd);
+            eval { respond_stats($upd); };
         }
     }
 
@@ -86,6 +87,11 @@ sub respond_stats {
        $snm_ticker = JSON->new->utf8->decode($snm_ticker);
     my $snm_last_price = $snm_ticker->{lastPrice}*100000000;
     my $snm_quote_volume = int($snm_ticker->{quoteVolume});
+
+    # TODO: Get SNM tokens deposited to the side chain
+    #my $gatekeeper = `curl -s https://api.etherscan.io/api?module=account&action=tokenbalance&contractaddress=0x983f6d60db79ea8ca4eb9968c6aff8cfa04b3c63&address=0x125f1e37a45abf9b9894aefcb03d14d170d1489b`;
+    #my $deposited = JSON->new->utf8->decode($gatekeeper)->{result};
+    #   $deposited /= 1000000000000000000;
     my $chat_id = $upd->{message}->{chat}->{id};
     my $msg_id  = $upd->{message}->{message_id};
     my $msg  = "Current deals: $latest\n";
