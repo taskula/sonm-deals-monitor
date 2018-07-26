@@ -71,7 +71,7 @@ sub respond_stats {
     $sth->execute();
     my ($interval_1day) = $sth->fetchrow_array();
     $sth = $dbh->prepare('SELECT amount FROM deals WHERE ' .
-        'timestamp < DATETIME("now", "-1 week") ORDER BY timestamp DESC LIMIT 1');
+        'timestamp < DATETIME("now", "-7 day") ORDER BY timestamp DESC LIMIT 1');
     $sth->execute();
     my ($interval_1week) = $sth->fetchrow_array();
     $sth = $dbh->prepare('SELECT amount FROM deals WHERE ' .
