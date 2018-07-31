@@ -6,7 +6,7 @@ sudo cpan DBI
 sudo cpan DBD::SQLite
 sudo cpan JSON
 
-Monitoring script - records
+Monitoring script - records deals into SQLite database data/deals.db
 ./monitor.pl -i 60 -v
 
 Telegram Bot
