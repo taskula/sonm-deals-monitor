@@ -90,7 +90,7 @@ sub respond_sidechain {
        $total = JSON->new->utf8->decode($total)->{result};
     my $percent_of_total_supply = ($deposited/$total)*100 . "%";
     my $msg = qq(
-     Currently $deposited_tokens are in the side chain, which are $percent_of_total_supply of the total supply.
+     Currently $deposited_tokens SNM are in the side chain, which are $percent_of_total_supply of the total supply.
     );
 
     send_response($upd, $msg);
