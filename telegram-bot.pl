@@ -6,6 +6,7 @@ use warnings;
 use DBI;
 use JSON;
 use Getopt::Long;
+use List::Util qw( any );
 use Pod::Usage;
 use Scalar::Util qw( looks_like_number );
 
@@ -48,12 +49,31 @@ while (1) {
             }
             $latest = $upd->{update_id};
             my $cmd = $upd->{message}->{text};
-            next unless $cmd && $cmd =~ /^\/dm\@{0,1}(.*)$/;
-            eval { respond_stats($upd); };
+            next unless $cmd && $cmd =~ /^\/\w+(\@{0,1}(.*))?$/;
+            eval { command($cmd, $upd); };
         }
     }
 
     sleep(1);
+}
+
+sub command {
+    my ($cmd, $upd) = @_;
+
+    $cmd =~ /^\/(\w+)(\@{0,1}(.*))?$/;
+    $cmd = $1;
+    my @valid_commands = (
+        'dm',
+    );
+
+    # Check if $cmd is a valid command
+    unless (any { /^$cmd$/ } @valid_commands) {
+        return;
+    }
+
+    if ($cmd eq 'dm') {
+        return respond_stats($upd);
+    }
 }
 
 sub respond_stats {
@@ -92,8 +112,6 @@ sub respond_stats {
     #my $gatekeeper = `curl -s https://api.etherscan.io/api?module=account&action=tokenbalance&contractaddress=0x983f6d60db79ea8ca4eb9968c6aff8cfa04b3c63&address=0x125f1e37a45abf9b9894aefcb03d14d170d1489b`;
     #my $deposited = JSON->new->utf8->decode($gatekeeper)->{result};
     #   $deposited /= 1000000000000000000;
-    my $chat_id = $upd->{message}->{chat}->{id};
-    my $msg_id  = $upd->{message}->{message_id};
     my $msg  = "Current deals: $latest\n";
        $msg .= '1 hour: ' . inc_dec($latest, $interval_1hour) . "\n";
        $msg .= '1 day: ' . inc_dec($latest, $interval_1day) . "\n";
@@ -103,6 +121,16 @@ sub respond_stats {
        $msg .= "\n";
        $msg .= "SNM Price: $snm_last_price sats\n";
        $msg .= "Vol: $snm_quote_volume BTC";
+
+    send_response($upd, $msg);
+}
+
+sub send_response {
+    my ($upd, $msg) = @_;
+
+    my $chat_id = $upd->{message}->{chat}->{id};
+    my $msg_id  = $upd->{message}->{message_id};
+
     my $tg_url = "https://api.telegram.org/bot$token/sendMessage";
     `curl -s -G $tg_url --data-urlencode "text=$msg" --data-urlencode "chat_id=$chat_id" --data-urlencode "reply_to_message_id=$msg_id"`;
     print "Sending message to chat id $chat_id\n" if $verbose;
