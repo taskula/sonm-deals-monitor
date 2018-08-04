@@ -113,11 +113,11 @@ sub respond_stats {
     #my $deposited = JSON->new->utf8->decode($gatekeeper)->{result};
     #   $deposited /= 1000000000000000000;
     my $msg  = "Current deals: $latest\n";
-       $msg .= '1 hour: ' . inc_dec($latest, $interval_1hour) . "\n";
-       $msg .= '1 day: ' . inc_dec($latest, $interval_1day) . "\n";
-       $msg .= '1 week: ' . inc_dec($latest, $interval_1week) . "\n";
-       $msg .= '1 month: ' . inc_dec($latest, $interval_1month) . "\n";
-       $msg .= "From ATH ($ath): " . inc_dec($latest, $ath) . "\n";
+       $msg .= '1 hour: ' . _inc_dec($latest, $interval_1hour) . "\n";
+       $msg .= '1 day: ' . _inc_dec($latest, $interval_1day) . "\n";
+       $msg .= '1 week: ' . _inc_dec($latest, $interval_1week) . "\n";
+       $msg .= '1 month: ' . _inc_dec($latest, $interval_1month) . "\n";
+       $msg .= "From ATH ($ath): " . _inc_dec($latest, $ath) . "\n";
        $msg .= "\n";
        $msg .= "SNM Price: $snm_last_price sats\n";
        $msg .= "Vol: $snm_quote_volume BTC";
@@ -136,7 +136,7 @@ sub send_response {
     print "Sending message to chat id $chat_id\n" if $verbose;
 }
 
-sub inc_dec {
+sub _inc_dec {
     my ($latest, $old) = @_;
 
     return "---" unless defined $old;
