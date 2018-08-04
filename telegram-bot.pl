@@ -63,7 +63,7 @@ sub command {
     $cmd =~ /^\/(\w+)(\@{0,1}(.*))?$/;
     $cmd = $1;
     my @valid_commands = (
-        'dm',
+        'dm', 'sc'
     );
 
     # Check if $cmd is a valid command
@@ -74,6 +74,26 @@ sub command {
     if ($cmd eq 'dm') {
         return respond_stats($upd);
     }
+    elsif ($cmd eq 'sc') {
+        return respond_sidechain($upd);
+    }
+}
+
+sub respond_sidechain {
+    my ($upd) = @_;
+
+    # Get SNM tokens deposited to the side chain
+    my $result = `curl -s 'https://api.etherscan.io/api?module=account&action=tokenbalance&contractaddress=0x983f6d60db79ea8ca4eb9968c6aff8cfa04b3c63&address=0x125f1e37a45abf9b9894aefcb03d14d170d1489b'`;
+    my $deposited = JSON->new->decode($result)->{result};
+    my $deposited_tokens = $deposited / 1000000000000000000;
+    my $total = `curl -s 'https://api.etherscan.io/api?module=stats&action=tokensupply&contractaddress=0x983f6d60db79ea8ca4eb9968c6aff8cfa04b3c63'`;
+       $total = JSON->new->utf8->decode($total)->{result};
+    my $percent_of_total_supply = ($deposited/$total)*100 . "%";
+    my $msg = qq(
+     Currently $deposited_tokens are in the side chain, which are $percent_of_total_supply of the total supply.
+    );
+
+    send_response($upd, $msg);
 }
 
 sub respond_stats {
@@ -108,10 +128,6 @@ sub respond_stats {
     my $snm_last_price = $snm_ticker->{lastPrice}*100000000;
     my $snm_quote_volume = int($snm_ticker->{quoteVolume});
 
-    # TODO: Get SNM tokens deposited to the side chain
-    #my $gatekeeper = `curl -s https://api.etherscan.io/api?module=account&action=tokenbalance&contractaddress=0x983f6d60db79ea8ca4eb9968c6aff8cfa04b3c63&address=0x125f1e37a45abf9b9894aefcb03d14d170d1489b`;
-    #my $deposited = JSON->new->utf8->decode($gatekeeper)->{result};
-    #   $deposited /= 1000000000000000000;
     my $msg  = "Current deals: $latest\n";
        $msg .= '1 hour: ' . _inc_dec($latest, $interval_1hour) . "\n";
        $msg .= '1 day: ' . _inc_dec($latest, $interval_1day) . "\n";
