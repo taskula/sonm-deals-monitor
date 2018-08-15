@@ -41,7 +41,7 @@ unless (-s $deals_db) {
 }
 
 while (1) {
-    my $deals = `curl -s $dwh_deals -d '{}' | grep -o '"deal"' | wc -l`;
+    my $deals = `curl -s $dwh_deals -d '{"status":1}' | grep -o '"deal"' | wc -l`;
     print "Deals: $deals" if $verbose;
 
     unless (looks_like_number($deals)) {
