@@ -14,6 +14,7 @@ my $token       = '';
 my $verbose     = 0;
 my $man         = 0;
 my $help        = 0;
+my $dwh_deals   = 'https://dwh.livenet.sonm.com:15022/DWHServer/GetDeals/';
 my $deals_db    = 'data/deals.db';
 
 GetOptions(
@@ -99,10 +100,7 @@ sub respond_sidechain {
 sub respond_stats {
     my ($upd) = @_;
 
-    my $sth = $dbh->prepare('SELECT amount FROM deals ORDER BY timestamp DESC LIMIT 1');
-    $sth->execute();
-    my ($latest) = $sth->fetchrow_array();
-    $sth = $dbh->prepare('SELECT amount FROM deals WHERE ' .
+    my $sth = $dbh->prepare('SELECT amount FROM deals WHERE ' .
         'timestamp < DATETIME("now", "-1 hour") ORDER BY timestamp DESC LIMIT 1');
     $sth->execute();
     my ($interval_1hour) = $sth->fetchrow_array();
@@ -128,13 +126,32 @@ sub respond_stats {
     my $snm_last_price = $snm_ticker->{lastPrice}*100000000;
     my $snm_quote_volume = int($snm_ticker->{quoteVolume});
 
-    my $msg  = "Current deals: $latest\n";
+    # Get current eth-hashrate
+    my $deals = `curl -s $dwh_deals -d '{"status":1}'`;
+       $deals = eval { JSON->new->utf8->decode($deals)->{deals}; };
+    my $hashrate = 0;
+    foreach my $deal (@$deals) {
+        $deal = $deal->{deal};
+        $hashrate += $deal->{benchmarks}->{'values'}->[9];
+    }
+    $hashrate /= 1000000; # Convert to MH/s
+    $hashrate = sprintf('%d', $hashrate);
+
+    # Get basic stats from EtherChain
+    my $eth_stats = `curl -s https://www.etherchain.org/api/basic_stats`;
+       $eth_stats = eval { JSON->new->utf8->decode($eth_stats)->{currentStats}; };
+    my $eth_hashrate = $eth_stats->{hashrate};
+    my $percent_of_total_hashrate = sprintf("%.10f", ($hashrate*1000/$eth_hashrate));
+
+    my $number_of_deals = @{$deals};
+    my $msg  = "Current deals: $number_of_deals\n";
        $msg .= '1 hour: ' . _inc_dec($latest, $interval_1hour) . "\n";
        $msg .= '1 day: ' . _inc_dec($latest, $interval_1day) . "\n";
        $msg .= '1 week: ' . _inc_dec($latest, $interval_1week) . "\n";
        $msg .= '1 month: ' . _inc_dec($latest, $interval_1month) . "\n";
        $msg .= "From ATH ($ath): " . _inc_dec($latest, $ath) . "\n";
        $msg .= "\n";
+       $msg .= "ETH-hashrate: $hashrate MH/s ($percent_of_total_hashrate% of total)\n";
        $msg .= "SNM Price: $snm_last_price sats\n";
        $msg .= "Vol: $snm_quote_volume BTC";
 
