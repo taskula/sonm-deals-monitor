@@ -145,11 +145,11 @@ sub respond_stats {
 
     my $number_of_deals = @{$deals};
     my $msg  = "Current deals: $number_of_deals\n";
-       $msg .= '1 hour: ' . _inc_dec($latest, $interval_1hour) . "\n";
-       $msg .= '1 day: ' . _inc_dec($latest, $interval_1day) . "\n";
-       $msg .= '1 week: ' . _inc_dec($latest, $interval_1week) . "\n";
-       $msg .= '1 month: ' . _inc_dec($latest, $interval_1month) . "\n";
-       $msg .= "From ATH ($ath): " . _inc_dec($latest, $ath) . "\n";
+       $msg .= '1 hour: ' . _inc_dec($number_of_deals, $interval_1hour) . "\n";
+       $msg .= '1 day: ' . _inc_dec($number_of_deals, $interval_1day) . "\n";
+       $msg .= '1 week: ' . _inc_dec($number_of_deals, $interval_1week) . "\n";
+       $msg .= '1 month: ' . _inc_dec($number_of_deals, $interval_1month) . "\n";
+       $msg .= "From ATH ($ath): " . _inc_dec($number_of_deals, $ath) . "\n";
        $msg .= "\n";
        $msg .= "ETH-hashrate: $hashrate MH/s ($percent_of_total_hashrate% of total)\n";
        $msg .= "SNM Price: $snm_last_price sats\n";
