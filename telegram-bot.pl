@@ -141,7 +141,7 @@ sub respond_stats {
     my $eth_stats = `curl -s https://www.etherchain.org/api/basic_stats`;
        $eth_stats = eval { JSON->new->utf8->decode($eth_stats)->{currentStats}; };
     my $eth_hashrate = $eth_stats->{hashrate};
-       $eth_hashrate = -1;
+       $eth_hashrate = -1 unless $eth_hashrate;
     my $percent_of_total_hashrate = sprintf("%.7f", ($hashrate*1000000/$eth_hashrate*100));
        $percent_of_total_hashrate = "i dont know" if $eth_hashrate == -1;
 
